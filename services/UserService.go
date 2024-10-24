@@ -18,7 +18,7 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 	return &UserService{UserRepo: repo}
 }
 
-func (us *UserService) FindUserByEmail(ctx *gin.Context, email string) (*models.User, error) {
+func (us *UserService) FindUserByEmail(ctx *gin.Context, email string) (*models.Users, error) {
 	user, err := us.UserRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user by email: %v", err)
@@ -26,9 +26,9 @@ func (us *UserService) FindUserByEmail(ctx *gin.Context, email string) (*models.
 	return user, nil
 }
 
-func (us *UserService) AddUserInDB(ctx *gin.Context, firebaseUID string, userRecord *auth.UserRecord) (*models.User, error ){
+func (us *UserService) AddUserInDB(ctx *gin.Context, firebaseUID string, userRecord *auth.UserRecord) (*models.Users, error ){
 
-	user := &models.User{
+	user := &models.Users{
 		FirebaseId: firebaseUID,
 		Name:       userRecord.DisplayName,
 		Email:      userRecord.Email,
@@ -41,14 +41,14 @@ func (us *UserService) AddUserInDB(ctx *gin.Context, firebaseUID string, userRec
 	return user, nil
 }
 
-func (us *UserService) UpdateDeletedUser(ctx *gin.Context, user *models.User, firebaseUID string) error {
+func (us *UserService) UpdateDeletedUser(ctx *gin.Context, user *models.Users, firebaseUID string) error {
 	if err := us.UserRepo.UpdateDeletedUser(ctx, user, firebaseUID); err != nil {
 		return fmt.Errorf("failed to update user: %v", err)
 	}
 	return nil
 }
 
-func (us *UserService) GetUserByFirebaseId(ctx *gin.Context, firebaseUID string) (*models.User, error){
+func (us *UserService) GetUserByFirebaseId(ctx *gin.Context, firebaseUID string) (*models.Users, error){
 	user, err := us.UserRepo.GetUserByFirebaseId(ctx, firebaseUID)
 	if err != nil{
 		return nil, fmt.Errorf("failed to get user")
@@ -56,7 +56,7 @@ func (us *UserService) GetUserByFirebaseId(ctx *gin.Context, firebaseUID string)
 	return user, nil
 }
 
-func (us *UserService) SoftDelete(ctx *gin.Context, user *models.User) error {
+func (us *UserService) SoftDelete(ctx *gin.Context, user *models.Users) error {
 	err := us.UserRepo.SoftDelete(ctx, user)
 	if err != nil{
 		return fmt.Errorf("failed to get user")

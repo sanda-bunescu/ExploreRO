@@ -19,8 +19,8 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (ur *UserRepository) GetUserByEmail(ctx *gin.Context, email string) (*models.User, error) {
-	var user models.User
+func (ur *UserRepository) GetUserByEmail(ctx *gin.Context, email string) (*models.Users, error) {
+	var user models.Users
 	userResult := ur.DB.Where("email = ?", email).First(&user)
 	if userResult.Error == gorm.ErrRecordNotFound {
 		return nil, nil
@@ -34,8 +34,8 @@ func (ur *UserRepository) GetUserByEmail(ctx *gin.Context, email string) (*model
 	return &user, nil
 }
 
-func (ur *UserRepository) GetUserByFirebaseId(ctx *gin.Context, firebaseUID string) (*models.User, error) {
-	var user models.User
+func (ur *UserRepository) GetUserByFirebaseId(ctx *gin.Context, firebaseUID string) (*models.Users, error) {
+	var user models.Users
 	userResult := initializers.DB.Where("firebase_id = ?", firebaseUID).First(&user)
 	if userResult.Error != nil && userResult.Error != gorm.ErrRecordNotFound {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query user from database."})
@@ -44,7 +44,7 @@ func (ur *UserRepository) GetUserByFirebaseId(ctx *gin.Context, firebaseUID stri
 	return &user, nil
 }
 
-func (ur *UserRepository) CreateUser(ctx *gin.Context, user *models.User) error {
+func (ur *UserRepository) CreateUser(ctx *gin.Context, user *models.Users) error {
 	result := ur.DB.Create(&user)
 	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -55,7 +55,7 @@ func (ur *UserRepository) CreateUser(ctx *gin.Context, user *models.User) error 
 	return nil
 }
 
-func (ur *UserRepository) UpdateDeletedUser(ctx *gin.Context, user *models.User, firebaseUID string) error {
+func (ur *UserRepository) UpdateDeletedUser(ctx *gin.Context, user *models.Users, firebaseUID string) error {
 	user.DeletedAt = nil
 	user.FirebaseId = firebaseUID //update to new uid
 
@@ -68,7 +68,7 @@ func (ur *UserRepository) UpdateDeletedUser(ctx *gin.Context, user *models.User,
 	return nil
 }
 
-func (ur *UserRepository) SoftDelete(ctx *gin.Context, user *models.User) error {
+func (ur *UserRepository) SoftDelete(ctx *gin.Context, user *models.Users) error {
 	currentTime := time.Now()
 	user.DeletedAt = &currentTime
 
